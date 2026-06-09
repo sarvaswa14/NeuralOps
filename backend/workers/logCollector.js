@@ -1,14 +1,14 @@
 const axios = require('axios')
-const MetricSnapshot = require('../models/MetricSnapshot')
-const LogEntry = require('../models/LogEntry')
+const MetricSnapshot = require('../models/metricSnapshot')
+const LogEntry = require('../models/logEntry')
 
-const TARGET_URL = 'http://localhost:4000'
+const TARGET_URL = process.env.TARGET_APP_URL || 'http://localhost:4000'
 
 const collectLogs = async () => {
     try {
     const [metricsRes, healthRes] = await Promise.all([
-      axios.get('http://localhost:4000/metrics'),
-      axios.get('http://localhost:4000/health')
+      axios.get(`${TARGET_URL}/metrics`),
+      axios.get(`${TARGET_URL}/health`)
     ])
 
     const metricSnapshot = new MetricSnapshot({
@@ -27,7 +27,7 @@ const collectLogs = async () => {
     await logEntry.save()
 
   } catch (error) {
-    
+
   }
 }
 

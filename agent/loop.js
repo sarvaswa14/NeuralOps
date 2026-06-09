@@ -1,6 +1,6 @@
 const Groq = require('groq-sdk')
 const { toolDefinitions, toolImplementations } = require('./tools')
-const LearningStore = require('../backend/models/learningStore')
+const LearningStore = require('./models/learningStore')
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 

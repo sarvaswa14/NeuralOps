@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const MetricSnapshot = require('../models/MetricSnapshot') 
+const MetricSnapshot = require('../models/metricSnapshot') 
 const protect = require('../middleware/protect') 
 
 router.use(protect)

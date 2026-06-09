@@ -1,6 +1,6 @@
-const LogEntry = require('../backend/models/logEntry')
-const MetricSnapshot = require('../backend/models/metricSnapshot')
-const Deployment = require('../backend/models/deployment')
+const LogEntry = require('./models/logEntry')
+const MetricSnapshot = require('./models/metricSnapshot')
+const Deployment = require('./models/deployment')
 const mongoose = require('mongoose')
 
 const toolDefinitions = [
@@ -155,7 +155,8 @@ const toolImplementations = {
     },
 
     restart_service: async ({ service }) => {
-        const response = await fetch('http://localhost:4000/admin/heal', {
+        const targetUrl = process.env.TARGET_APP_URL || 'http://localhost:4000'
+        const response = await fetch(`${targetUrl}/admin/heal`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ service })

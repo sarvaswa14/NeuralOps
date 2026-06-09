@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const LogEntry = require('../models/LogEntry')
+const LogEntry = require('../models/logEntry')
 const protect = require('../middleware/protect')
 router.use(protect)
 router.get('/', async (req, res) => {

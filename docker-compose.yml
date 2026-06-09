@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    networks:
+      - neuralops-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - neuralops-network
+
+  target-app:
+    build: ./target-app
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    env_file:
+      - ./target-app/.env
+    networks:
+      - neuralops-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      - TARGET_APP_URL=http://target-app:4000
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - neuralops-network
+
+  anomaly-engine:
+    build: ./anomaly-engine
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - ./anomaly-engine/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - neuralops-network
+
+  agent:
+    build: ./agent
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - ./agent/.env
+    environment:
+      - TARGET_APP_URL=http://target-app:4000
+      - REDIS_URL=redis://redis:6379  
+    networks:
+      - neuralops-network
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    networks:
+      - neuralops-network
+
+networks:
+  neuralops-network:
+    driver: bridge
