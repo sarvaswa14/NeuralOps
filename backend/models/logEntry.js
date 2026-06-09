@@ -7,4 +7,4 @@ const logEntrySchema = new mongoose.Schema({
     timestamp : { type : Date,index : true},
     incidentId : {type: mongoose.Schema.Types.ObjectId, ref: 'Incident'}
 })
-module.exports = mongoose.model('logEntry',logEntrySchema)
+module.exports = mongoose.models.logEntry || mongoose.model('logEntry', logEntrySchema)

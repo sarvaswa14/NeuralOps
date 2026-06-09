@@ -9,4 +9,4 @@ const metricSnapshotSchema = new mongoose.Schema({
     anomalyScore: {type : Number},
     timestamp : { type : Date, index : true}
 })
-module.exports = mongoose.model('metricSnapshot',metricSnapshotSchema)
+module.exports = mongoose.models.metricSnapshot || mongoose.model('metricSnapshot',metricSnapshotSchema)

@@ -7,4 +7,4 @@ const deploymentSchema = new mongoose.Schema({
     status : { type : String,enum : ['success','failed','rolled_back']},
     changelog: { type: String}
 })
-module.exports = mongoose.model('deployment',deploymentSchema)
+module.exports =  mongoose.models.deployment ||mongoose.model('deployment',deploymentSchema)
