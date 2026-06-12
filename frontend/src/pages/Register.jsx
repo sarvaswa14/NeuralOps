@@ -1,1 +1,8 @@
-export default function Register() { return null }
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+export default function Register() {
+  const navigate = useNavigate()
+  useEffect(() => { navigate('/login') }, [])
+  return null
+}

@@ -4,7 +4,7 @@ const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 const TEXT = 'NeuralOps'
 const FRAMES = 100
 
-export default function Logo({ size = 22 }) {
+export default function Logo({ size = 22, onClick }) {
   const ref = useRef(null)
 
   const runScramble = () => {
@@ -41,14 +41,25 @@ export default function Logo({ size = 22 }) {
     <span
       ref={ref}
       onMouseEnter={runScramble}
+      onClick={onClick}
       style={{
         color: '#fff',
         fontSize: `${size}px`,
         fontWeight: 500,
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        cursor: 'default',
-        fontFamily: "'Geist Mono', monospace"
+        cursor: onClick ? 'pointer' : 'default',
+        fontFamily: "'Geist Mono', monospace",
+        transition: 'letter-spacing 200ms ease, text-shadow 200ms ease',
+        display: 'inline-block',
+      }}
+      onMouseOver={e => {
+        e.currentTarget.style.letterSpacing = '0.09em'
+        e.currentTarget.style.textShadow = '0 0 20px rgba(74,111,165,0.4)'
+      }}
+      onMouseOut={e => {
+        e.currentTarget.style.letterSpacing = '0.06em'
+        e.currentTarget.style.textShadow = 'none'
       }}
     >
       NeuralOps

@@ -1,173 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-function useScramble(ref, text) {
-  useEffect(() => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let frame = 0
-    let rafId
-    const totalFrames = 100
-
-    function scramble() {
-      frame++
-      const progress = frame / totalFrames
-      let result = ''
-      for (let i = 0; i < text.length; i++) {
-        if (i < Math.floor(progress * text.length)) {
-          result += text[i]
-        } else {
-          result += chars[Math.floor(Math.random() * chars.length)]
-        }
-      }
-      if (ref.current) ref.current.textContent = result
-      if (frame < totalFrames) {
-        rafId = requestAnimationFrame(scramble)
-      } else {
-        if (ref.current) ref.current.textContent = text
-      }
-    }
-
-    rafId = requestAnimationFrame(scramble)
-    return () => cancelAnimationFrame(rafId)
-  }, [ref, text])
-}
-
-function FlowField() {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    let W = canvas.offsetWidth
-    let H = canvas.offsetHeight
-    let particles = []
-    let rafId
-    let mouse = { x: -1000, y: -1000 }
-
-     const COLOR = '#4A6FA5'
-      const COUNT = 1200
-      const TRAIL = 0.1
-      const SPEED = 0.85
-
-    function resize() {
-      W = canvas.offsetWidth
-      H = canvas.offsetHeight
-      canvas.width = W
-      canvas.height = H
-    }
-
-    class Particle {
-      constructor() {
-        this.reset(true)
-      }
-      reset(rand) {
-        this.x = Math.random() * W
-        this.y = rand ? Math.random() * H : Math.random() * H
-        this.vx = 0
-        this.vy = 0
-        this.age = 0
-        this.life = Math.random() * 200 + 100
-      }
-      update() {
-        const angle = (Math.cos(this.x * 0.005) + Math.sin(this.y * 0.005)) * Math.PI
-        this.vx += Math.cos(angle) * 0.2 * SPEED
-        this.vy += Math.sin(angle) * 0.2 * SPEED
-
-        const dx = mouse.x - this.x
-        const dy = mouse.y - this.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 140) {
-          const f = (140 - dist) / 140
-          this.vx -= dx * f * 0.04
-          this.vy -= dy * f * 0.04
-        }
-
-        this.x += this.vx
-        this.y += this.vy
-        this.vx *= 0.95
-        this.vy *= 0.95
-        this.age++
-
-        if (this.age > this.life) this.reset(false)
-        if (this.x < 0) this.x = W
-        if (this.x > W) this.x = 0
-        if (this.y < 0) this.y = H
-        if (this.y > H) this.y = 0
-      }
-      draw() {
-        const alpha = (1 - Math.abs((this.age / this.life) - 0.5) * 2) * 1.0
-        ctx.globalAlpha = alpha
-        ctx.fillStyle = COLOR
-        ctx.fillRect(this.x, this.y, 2.5, 2.5)
-      }
-    }
-
-    function init() {
-      particles = []
-      for (let i = 0; i < COUNT; i++) particles.push(new Particle())
-    }
-
-    function loop() {
-      ctx.globalAlpha = 1
-      ctx.fillStyle = `rgba(0,0,0,${TRAIL})`
-      ctx.fillRect(0, 0, W, H)
-      particles.forEach(p => { p.update(); p.draw() })
-      rafId = requestAnimationFrame(loop)
-    }
-
-    const handleMouseMove = (e) => {
-      const r = canvas.getBoundingClientRect()
-      mouse.x = e.clientX - r.left
-      mouse.y = e.clientY - r.top
-    }
-
-    const handleMouseLeave = () => {
-      mouse.x = -1000
-      mouse.y = -1000
-    }
-
-    const handleResize = () => {
-      resize()
-      init()
-    }
-
-    resize()
-    init()
-    loop()
-
-    window.addEventListener('resize', handleResize)
-    canvas.addEventListener('mousemove', handleMouseMove)
-    canvas.addEventListener('mouseleave', handleMouseLeave)
-
-    return () => {
-      cancelAnimationFrame(rafId)
-      window.removeEventListener('resize', handleResize)
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseleave', handleMouseLeave)
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        display: 'block'
-      }}
-    />
-  )
-}
-
+import FlowField from '../components/FlowField'
+import Logo from '../components/Logo'
 export default function Landing() {
   const navigate = useNavigate()
   const logoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const [entered, setEntered] = useState(false)
   const scrambleText = 'NeuralOps'
   const scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-
-  useScramble(logoRef, scrambleText)
 
   const triggerScramble = () => {
     let frame = 0
@@ -198,6 +39,14 @@ export default function Landing() {
     rafId = requestAnimationFrame(run)
   }
 
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setEntered(true)
+      triggerScramble()
+    }, 100)
+    return () => clearTimeout(t)
+  }, [])
+
   return (
     <div style={{
       position: 'relative',
@@ -207,16 +56,27 @@ export default function Landing() {
       overflow: 'hidden',
       fontFamily: "'Geist', system-ui, sans-serif"
     }}>
-      <FlowField />
+      <FlowField count={1200} trail={0.1} color='#4A6FA5' speed={0.85} />
+
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 1,
+        pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 40% 35% at 50% 48%, rgba(74,111,165,0.07) 0%, transparent 70%)'
+      }} />
 
       <div style={{
         position: 'relative',
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh'
+        height: '100vh',
+        opacity: entered ? 1 : 0,
+        transform: entered ? 'none' : 'scale(0.98)',
+        transition: 'opacity 700ms ease, transform 700ms ease'
       }}>
-      <div style={{
+        <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
@@ -225,7 +85,8 @@ export default function Landing() {
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%)',
           zIndex: 9,
           pointerEvents: 'none'
-      }} />
+        }} />
+
         <nav style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -242,7 +103,8 @@ export default function Landing() {
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
               cursor: 'default',
-              fontFamily: "'Geist Mono', monospace"
+              fontFamily: "'Geist Mono', monospace",
+              animation: 'float 7s ease-in-out infinite',
             }}
           >
             NeuralOps
@@ -274,7 +136,16 @@ export default function Landing() {
                 fontSize: '14px',
                 cursor: 'pointer',
                 letterSpacing: '0.02em',
-                fontFamily: "'Geist', sans-serif"
+                fontFamily: "'Geist', sans-serif",
+                transition: 'border-color 150ms ease, color 150ms ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'
+                e.currentTarget.style.color = '#fff'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'
+                e.currentTarget.style.color = 'rgba(255,255,255,0.85)'
               }}
             >
               Sign in
@@ -296,20 +167,20 @@ export default function Landing() {
             letterSpacing: '0.2em',
             color: 'rgba(255,255,255,0.22)',
             textTransform: 'uppercase',
-            marginBottom: '28px',
+            marginBottom: '32px',
             fontFamily: "'Geist Mono', monospace"
           }}>
             Autonomous Incident Response
           </p>
 
           <h1 style={{
-            fontSize: '56px',
+            fontSize: '64px',
             fontWeight: 300,
             color: '#fff',
-            lineHeight: 1.08,
+            lineHeight: 1.06,
             letterSpacing: '-0.03em',
-            marginBottom: '24px',
-            maxWidth: '600px',
+            marginBottom: '28px',
+            maxWidth: '660px',
             fontFamily: "'Geist', sans-serif"
           }}>
             Your infrastructure.<br />
@@ -321,9 +192,9 @@ export default function Landing() {
           <p style={{
             fontSize: '15px',
             color: 'rgba(255,255,255,0.28)',
-            lineHeight: 1.8,
+            lineHeight: 1.85,
             maxWidth: '400px',
-            marginBottom: '44px',
+            marginBottom: '52px',
             fontWeight: 300,
             fontFamily: "'Geist', sans-serif"
           }}>
@@ -338,13 +209,22 @@ export default function Landing() {
                 background: '#fff',
                 color: '#000',
                 border: 'none',
-                padding: '11px 32px',
+                padding: '12px 36px',
                 borderRadius: '4px',
                 fontSize: '14px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 letterSpacing: '0.02em',
-                fontFamily: "'Geist', sans-serif"
+                fontFamily: "'Geist', sans-serif",
+                transition: 'transform 150ms ease, background 150ms ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-1px)'
+                e.currentTarget.style.background = 'rgba(255,255,255,0.92)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.background = '#fff'
               }}
             >
               Get started
@@ -358,14 +238,24 @@ export default function Landing() {
                 fontSize: '14px',
                 cursor: 'pointer',
                 letterSpacing: '0.02em',
-                fontFamily: "'Geist', sans-serif"
+                fontFamily: "'Geist', sans-serif",
+                transition: 'color 150ms ease'
               }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.28)'}
             >
               Sign in →
             </button>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-2px); }
+        }
+      `}</style>
     </div>
   )
 }
