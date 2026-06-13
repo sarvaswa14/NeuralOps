@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 const TEXT = 'NeuralOps'
-const FRAMES = 100
+const FRAMES = 30
 
 export default function Logo({ size = 22, onClick }) {
   const ref = useRef(null)
