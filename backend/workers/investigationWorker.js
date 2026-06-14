@@ -9,15 +9,19 @@ const {generatePostMortem} = require('../agent-core/postmortem')
 const {getIO} = require('../socket')
 const { Worker } = require('bullmq')
 const connection = { url: process.env.REDIS_URL }
+
 const investigationWorker = new Worker('investigation-queue', async (job) => {
+  console.log('worker received job:', job.id, job.data)
+  let incident
   try {
     const { service, anomalyScore, anomalyType } = job.data
-    const incident = await Incident.create({
+    incident = await Incident.create({
       service,
       status: 'investigating',
       anomalyScore,
       anomalyType
     })
+    console.log('incident created:', incident._id)
     const io = getIO()
     io.emit('incident:created', incident)
     const agentResponse = await runAgentLoop({
@@ -26,6 +30,7 @@ const investigationWorker = new Worker('investigation-queue', async (job) => {
       anomalyType,
       incidentId: incident._id
     }, async (name, args, output) => {
+      console.log('tool called:', name, 'output:', JSON.stringify(output).slice(0, 100))
       const liveStep = await AgentStep.create({
         incidentId: incident._id,
         stepType: 'investigate',
@@ -65,7 +70,7 @@ const investigationWorker = new Worker('investigation-queue', async (job) => {
       io.emit('incident:updated', updatedIncident)
       updatedIncident = await Incident.findByIdAndUpdate(
         incident._id,
-        { 
+        {
           status: 'resolved',
           resolvedAt: new Date(),
           actionTaken: 'auto'
@@ -75,7 +80,6 @@ const investigationWorker = new Worker('investigation-queue', async (job) => {
       io.emit('incident:updated', updatedIncident)
       const steps = await AgentStep.find({ incidentId: incident._id })
       const postMortemResult = generatePostMortem(updatedIncident, steps)
-      
       updatedIncident.postMortem = postMortemResult
       await updatedIncident.save()
       const symptoms = steps
@@ -91,7 +95,16 @@ const investigationWorker = new Worker('investigation-queue', async (job) => {
       })
     }
   } catch (error) {
-    
+    console.log('worker error:', error.message, error.stack)
+    if (incident?._id) {
+      await Incident.findByIdAndUpdate(
+        incident._id,
+        { status: 'escalated' }
+      )
+      const io = getIO()
+      io.emit('incident:updated', { _id: incident._id, status: 'escalated' })
+    }
   }
 }, { connection })
+
 module.exports = investigationWorker

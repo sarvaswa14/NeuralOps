@@ -5,18 +5,20 @@ const LogEntry = require('../models/logEntry')
 const TARGET_URL = process.env.TARGET_APP_URL || 'http://localhost:4000'
 
 const collectLogs = async () => {
-    try {
-    const [metricsRes, healthRes] = await Promise.all([
-      axios.get(`${TARGET_URL}/metrics`),
-      axios.get(`${TARGET_URL}/health`)
-    ])
-
+  try {
+    const metricsRes = await axios.get(`${TARGET_URL}/metrics`)
     const metricSnapshot = new MetricSnapshot({
       ...metricsRes.data,
-      service: 'api-server'
+      service: 'api-server',
+      timestamp: new Date()
     })
     await metricSnapshot.save()
+  } catch (error) {
+    console.log('logCollector metrics error:', error.message)
+  }
 
+  try {
+    const healthRes = await axios.get(`${TARGET_URL}/health`)
     const logEntry = new LogEntry({
       service: 'api-server',
       level: healthRes.data.status === 'ok' ? 'info' : 'error',
@@ -25,9 +27,8 @@ const collectLogs = async () => {
       timestamp: new Date()
     })
     await logEntry.save()
-
   } catch (error) {
-
+    console.log('logCollector health error:', error.message)
   }
 }
 

@@ -10,7 +10,7 @@ def score_service(service_name):
     )
     
     if not snapshots:
-        return 0.0
+        return 0.0, "UNKNOWN"
 
     latest = snapshots[0]
     
@@ -40,4 +40,14 @@ def score_service(service_name):
     }
     
     anomaly_score = sum(z_scores[m] * weights[m] for m in metrics)
-    return max(0.0, min(1.0, anomaly_score))
+    
+    dominant = max(z_scores, key=z_scores.get)
+    anomaly_type_map = {
+        "errorRate": "HIGH_ERROR_RATE",
+        "avgResponseTime": "SLOW_RESPONSE",
+        "memory": "MEMORY_LEAK",
+        "cpu": "HIGH_CPU"
+    }
+    anomaly_type = anomaly_type_map.get(dominant, "UNKNOWN")
+    
+    return max(0.0, min(1.0, anomaly_score)), anomaly_type

@@ -90,7 +90,7 @@ exports.runAgentLoop = async (incidentContext, onStep) => {
                     content: JSON.stringify({ result: output })
                 })
             } catch (error) {
-                output = { error: 'Tool execution failed' }
+                output = { error: 'Tool execution failed' + error.message }
                 toolResponses.push({
                     role: 'tool',
                     tool_call_id: id,

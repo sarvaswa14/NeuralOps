@@ -225,7 +225,7 @@ export default function Dashboard() {
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '2px', fontFamily: "'Geist Mono', monospace", letterSpacing: '0.04em', textTransform: 'uppercase', display: 'inline-block', whiteSpace: 'nowrap', background: sc.bg, color: sc.color }}>{inc.status}</span>
-                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Geist', sans-serif" }}>{inc.failureMode || 'Unknown'}</div>
+                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Geist', sans-serif" }}>{inc.anomalyType || 'Unknown'}</div>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', fontFamily: "'Geist Mono', monospace" }}>{formatTime(inc.createdAt)}</div>
                   </div>
                 )
@@ -245,13 +245,13 @@ export default function Dashboard() {
               )}
               {agentSteps.map((step, i) => (
                 <div key={i} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', marginTop: '5px', flexShrink: 0, background: step.type === 'tool_result' ? '#22c55e' : step.type === 'error' ? '#ef4444' : '#4A6FA5' }} />
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', marginTop: '5px', flexShrink: 0, background: step.stepType === 'investigate' ? '#22c55e' : step.stepType === 'decide' ? '#ef4444' : '#4A6FA5' }} />
                   <div>
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.42)', lineHeight: 1.5, fontFamily: "'Geist', sans-serif" }}>
-                      {step.toolName && (
-                        <span style={{ fontSize: '10px', fontFamily: "'Geist Mono', monospace", color: '#4A6FA5', background: 'rgba(74,111,165,0.1)', padding: '1px 5px', borderRadius: '2px', marginRight: '5px' }}>{step.toolName}</span>
+                      {step.toolCalled && (
+                        <span style={{ fontSize: '10px', fontFamily: "'Geist Mono', monospace", color: '#4A6FA5', background: 'rgba(74,111,165,0.1)', padding: '1px 5px', borderRadius: '2px', marginRight: '5px' }}>{step.toolCalled}</span>
                       )}
-                      {step.output ? String(step.output).slice(0, 80) : step.input ? String(step.input).slice(0, 80) : 'Processing...'}
+                      {step.toolOutput ? JSON.stringify(step.toolOutput).slice(0, 80) : step.toolInput ? JSON.stringify(step.toolInput).slice(0, 80) : 'Processing...'}
                     </div>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.18)', fontFamily: "'Geist Mono', monospace", marginTop: '2px' }}>{formatTime(step.timestamp)}</div>
                   </div>
@@ -274,7 +274,7 @@ export default function Dashboard() {
                   <div>
                     <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Geist Mono', monospace", marginBottom: '5px' }}>Active Incident</div>
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: "'Geist Mono', monospace" }}>
-                      {activeIncident?.failureMode || 'Unknown'} — <span style={{ color: '#eab308' }}>{activeIncident?.status}</span>
+                      {activeIncident?.anomalyType || 'Unknown'} — <span style={{ color: '#eab308' }}>{activeIncident?.status}</span>
                     </div>
                   </div>
                   <div>
@@ -282,7 +282,7 @@ export default function Dashboard() {
                     {completedSteps.slice(0, 4).map((step, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', marginBottom: '5px' }}>
                         <span style={{ fontSize: '11px', fontFamily: "'Geist Mono', monospace", color: '#22c55e', flexShrink: 0, marginTop: '1px' }}>✓</span>
-                        <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.4, fontFamily: "'Geist', sans-serif" }}>{step.toolName || 'Processing'}</div>
+                        <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.4, fontFamily: "'Geist', sans-serif" }}>{step.toolCalled || 'Processing'}</div>
                       </div>
                     ))}
                     {activeIncident.status === 'investigating' && (
@@ -309,7 +309,7 @@ export default function Dashboard() {
                   <div>
                     <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Geist Mono', monospace", marginBottom: '5px' }}>Last Resolved</div>
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Geist Mono', monospace" }}>
-                      {incidents.find(i => i.status === 'resolved')?.failureMode || 'No incidents yet'}
+                      {incidents.find(i => i.status === 'resolved')?.anomalyType || 'No incidents yet'}
                     </div>
                   </div>
                   {incidents.find(i => i.status === 'resolved')?.postMortem && (
