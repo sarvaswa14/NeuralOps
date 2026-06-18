@@ -16,6 +16,7 @@ import Deployments from './pages/Deployments'
 import LearningStore from './pages/LearningStore'
 import Demo from './pages/Demo'
 import Settings from './pages/Settings'
+import OAuthCallback from './pages/OAuthCallback'
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
       <AuthProvider>
         <SocketProvider>
           <Routes>
+            <Route path="/oauth" element={<OAuthCallback />} />
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

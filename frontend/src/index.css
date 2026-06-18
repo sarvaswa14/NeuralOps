@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "geist/dist/geist-sans.css";
-@import "geist/dist/geist-mono.css";
 
 * {
   margin: 0;
