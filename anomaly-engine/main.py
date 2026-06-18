@@ -28,8 +28,13 @@ def run():
         if latest and latest.get("anomalyScore", 0) > 0.7:
             trigger_investigation(service, latest["anomalyScore"], latest.get("anomalyType", "UNKNOWN"))
             print(f"triggered investigation for {service}", flush=True)
+            db["metricsnapshots"].update_one(
+                {"_id": latest["_id"]},
+                {"$set": {"anomalyScore": 0.0}}
+            )
             time.sleep(35)
             return
+
 schedule.every(30).seconds.do(run)
 
 print("anomaly engine started", flush=True)
