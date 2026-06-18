@@ -9,7 +9,7 @@ export default function Settings() {
 
   return (
     <Layout title="Settings">
-      <div style={{ padding: '16px 22px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignContent: 'start' }}>
+      <div style={{ padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '560px' }}>
 
         <div style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.015)', padding: '20px' }}>
           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase', ...mono, marginBottom: '16px' }}>Account</div>
@@ -26,24 +26,7 @@ export default function Settings() {
           ))}
         </div>
 
-        <div style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.015)', padding: '20px' }}>
-          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase', ...mono, marginBottom: '16px' }}>Stack</div>
-          {[
-            { label: 'Backend', value: 'Node.js / Express' },
-            { label: 'Database', value: 'MongoDB Atlas' },
-            { label: 'Queue', value: 'BullMQ / Redis' },
-            { label: 'AI Model', value: 'llama-3.1-8b-instant' },
-            { label: 'Anomaly Engine', value: 'Python / Z-score' },
-            { label: 'Version', value: 'v1.0.0' },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', ...mono, width: '130px', flexShrink: 0 }}>{label}</span>
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', ...mono }}>{value}</span>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ border: '1px solid rgba(239,68,68,0.15)', background: 'rgba(239,68,68,0.03)', padding: '20px', gridColumn: '1 / -1' }}>
+        <div style={{ border: '1px solid rgba(239,68,68,0.15)', background: 'rgba(239,68,68,0.03)', padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', ...sans, marginBottom: '4px' }}>Sign out</div>
