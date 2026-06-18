@@ -1,6 +1,7 @@
 const axios = require('axios')
 const MetricSnapshot = require('../models/metricSnapshot')
 const LogEntry = require('../models/logEntry')
+const { getIO } = require('../socket')
 
 const TARGET_URL = process.env.TARGET_APP_URL || 'http://localhost:4000'
 
@@ -13,6 +14,17 @@ const collectLogs = async () => {
       timestamp: new Date()
     })
     await metricSnapshot.save()
+
+    try {
+      const io = getIO()
+      io.emit('metrics:updated', {
+        errorRate: metricsRes.data.errorRate,
+        avgResponseTime: metricsRes.data.avgResponseTime,
+        memoryUsage: metricsRes.data.memory,
+        cpuUsage: metricsRes.data.cpu,
+      })
+    } catch {}
+
   } catch (error) {
     console.log('logCollector metrics error:', error.message)
   }
