@@ -9,7 +9,7 @@ def run():
     update_scores()
     
     active = db["incidents"].find_one({
-        "status": {"$in": ["investigating", "fixing", "verifying"]}
+        "status": {"$in": ["investigating", "fixing", "verifying","escalated"]}
     })
     
     if active:
@@ -25,7 +25,7 @@ def run():
             sort=[("timestamp", -1)]
         )
         
-        if latest and latest.get("anomalyScore", 0) > 0.92:
+        if latest and latest.get("anomalyScore", 0) > 0.7:
             trigger_investigation(service, latest["anomalyScore"], latest.get("anomalyType", "UNKNOWN"))
             print(f"triggered investigation for {service}", flush=True)
             db["metricsnapshots"].update_one(

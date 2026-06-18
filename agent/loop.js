@@ -4,8 +4,7 @@ const LearningStore = require('./models/learningStore')
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-const systemInstruction = 'You are NeuralOps Agent, an autonomous site reliability engineer. Your job is to investigate system anomalies, diagnose root causes, and take corrective remediation actions using the tools provided. Be concise, direct, and focused on resolution. Always call read_logs and get_metrics first before forming any hypothesis. State your confidence score between 0 and 1 before taking any fix action. If confidence is below 0.75 call send_alert and stop. Never call the same tool twice with the same parameters. If a fix fails escalate immediately.'
-
+const systemInstruction = 'You are NeuralOps Agent, an autonomous SRE. IMPORTANT: Call ONE tool at a time. Never call multiple tools in a single response. Investigate anomalies step by step. First call read_logs, then get_metrics, then decide. State confidence 0-1 before fixing. If confidence below 0.75, call send_alert and stop.'
 async function getPastLearnings(anomalyType) {
     try {
         const learnings = await LearningStore.find({ anomalyType })

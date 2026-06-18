@@ -1,9 +1,21 @@
 const express = require('express')
 const router = express.Router()
 const incidentController = require('../controllers/incidentController')
+const Incident = require('../models/incident')
+const AgentStep = require('../models/agentStep')
 const protect = require('../middleware/protect')
 
 router.use(protect)
+
+router.delete('/all', async (req, res) => {
+  try {
+    await Incident.deleteMany({})
+    await AgentStep.deleteMany({})
+    res.json({ success: true })
+  } catch {
+    res.status(500).json({ message: 'Server error' })
+  }
+})
 
 router.route('/summary').get(incidentController.getSummary)
 router.route('/').get(incidentController.getAllIncidents)

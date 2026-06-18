@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import api from '../api/api'
 
@@ -18,6 +18,24 @@ export default function Demo() {
   const [active, setActive] = useState({})
   const [loading, setLoading] = useState({})
   const [healLoading, setHealLoading] = useState(false)
+  const [clearLoading, setClearLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchModes = async () => {
+      try {
+        const res = await api.get('/api/target/modes')
+        const modes = res.data
+        const activeMap = {}
+        Object.keys(modes).forEach(key => {
+          if (modes[key]) activeMap[key] = true
+        })
+        setActive(activeMap)
+      } catch {}
+    }
+    fetchModes()
+    const interval = setInterval(fetchModes, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   const triggerFailure = async (mode) => {
     setLoading(prev => ({ ...prev, [mode]: true }))
@@ -37,6 +55,15 @@ export default function Demo() {
     finally { setHealLoading(false) }
   }
 
+  const clearAll = async () => {
+    if (!window.confirm('Delete all incidents and agent steps? This cannot be undone.')) return
+    setClearLoading(true)
+    try {
+      await api.delete('/api/incidents/all')
+    } catch {}
+    finally { setClearLoading(false) }
+  }
+
   const anyActive = Object.values(active).some(Boolean)
 
   return (
@@ -48,18 +75,35 @@ export default function Demo() {
             <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', ...sans }}>Trigger failure modes to demo autonomous incident response.</span>
             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', ...mono }}>The agent will detect, investigate, and fix automatically — no human intervention.</span>
           </div>
-          <button
-            onClick={healAll}
-            disabled={healLoading}
-            style={{
-              padding: '8px 24px', fontSize: '13px', ...mono,
-              background: anyActive ? 'rgba(34,197,94,0.1)' : 'transparent',
-              border: `1px solid ${anyActive ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}`,
-              color: anyActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
-              cursor: 'pointer', borderRadius: '2px', letterSpacing: '0.04em',
-              transition: 'all 150ms ease', opacity: healLoading ? 0.6 : 1
-            }}
-          >{healLoading ? 'healing...' : '✓ heal all'}</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={clearAll}
+              disabled={clearLoading}
+              style={{
+                padding: '8px 20px', fontSize: '12px', ...mono,
+                background: 'transparent',
+                border: '1px solid rgba(239,68,68,0.2)',
+                color: 'rgba(239,68,68,0.4)',
+                cursor: 'pointer', borderRadius: '2px', letterSpacing: '0.04em',
+                transition: 'all 150ms ease', opacity: clearLoading ? 0.6 : 1
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(239,68,68,0.5)'; e.currentTarget.style.color = '#ef4444' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = 'rgba(239,68,68,0.4)' }}
+            >{clearLoading ? 'clearing...' : 'clear data'}</button>
+
+            <button
+              onClick={healAll}
+              disabled={healLoading}
+              style={{
+                padding: '8px 24px', fontSize: '13px', ...mono,
+                background: anyActive ? 'rgba(34,197,94,0.1)' : 'transparent',
+                border: `1px solid ${anyActive ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                color: anyActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
+                cursor: 'pointer', borderRadius: '2px', letterSpacing: '0.04em',
+                transition: 'all 150ms ease', opacity: healLoading ? 0.6 : 1
+              }}
+            >{healLoading ? 'healing...' : '✓ heal all'}</button>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', flex: 1, alignContent: 'start' }}>
