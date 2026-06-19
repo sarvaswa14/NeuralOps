@@ -1,3 +1,4 @@
+import app  
 import time
 import schedule
 from db import db
