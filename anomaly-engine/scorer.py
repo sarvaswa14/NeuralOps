@@ -18,7 +18,7 @@ def score_service(service_name):
         return 1.0, "HIGH_ERROR_RATE"
     if avg_response > 5000:
         return 1.0, "SLOW_RESPONSE"
-    if memory > 900:
+    if memory > 850:
         return 1.0, "MEMORY_LEAK"
     if cpu > 85:
         return 1.0, "HIGH_CPU"
