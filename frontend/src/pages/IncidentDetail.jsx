@@ -44,10 +44,9 @@ export default function IncidentDetail() {
   const [incident, setIncident] = useState(null)
   const [steps, setSteps] = useState([])
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState(false)
 
-  useEffect(() => {
-    fetchData()
-  }, [id])
+  useEffect(() => { fetchData() }, [id])
 
   useEffect(() => {
     if (!socket) return
@@ -73,6 +72,16 @@ export default function IncidentDetail() {
       setSteps(stepsRes.data.steps || [])
     } catch {}
     finally { setLoading(false) }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this incident and all its steps?')) return
+    setDeleting(true)
+    try {
+      await api.delete(`/api/incidents/${id}`)
+      navigate('/incidents')
+    } catch {}
+    finally { setDeleting(false) }
   }
 
   if (loading) return (
@@ -124,26 +133,43 @@ export default function IncidentDetail() {
             </div>
           ))}
 
-          <button
-            onClick={() => navigate(`/incidents/${id}/trace`)}
-            style={{
-              marginLeft: 'auto',
-              fontSize: '12px',
-              ...mono,
-              color: '#4A6FA5',
-              border: '1px solid rgba(74,111,165,0.3)',
-              padding: '6px 16px',
-              borderRadius: '2px',
-              cursor: 'pointer',
-              background: 'rgba(74,111,165,0.06)',
-              letterSpacing: '0.04em',
-              transition: 'background 150ms ease, border-color 150ms ease'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,111,165,0.12)'; e.currentTarget.style.borderColor = 'rgba(74,111,165,0.5)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,111,165,0.06)'; e.currentTarget.style.borderColor = 'rgba(74,111,165,0.3)' }}
-          >
-            View Agent Trace →
-          </button>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{
+                fontSize: '12px', ...mono,
+                color: 'rgba(239,68,68,0.6)',
+                border: '1px solid rgba(239,68,68,0.2)',
+                padding: '6px 14px',
+                borderRadius: '2px',
+                cursor: 'pointer',
+                background: 'transparent',
+                letterSpacing: '0.04em',
+                transition: 'all 150ms ease',
+                opacity: deleting ? 0.5 : 1
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)'; e.currentTarget.style.color = '#ef4444' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = 'rgba(239,68,68,0.6)' }}
+            >{deleting ? 'deleting...' : 'delete'}</button>
+
+            <button
+              onClick={() => navigate(`/incidents/${id}/trace`)}
+              style={{
+                fontSize: '12px', ...mono,
+                color: '#4A6FA5',
+                border: '1px solid rgba(74,111,165,0.3)',
+                padding: '6px 16px',
+                borderRadius: '2px',
+                cursor: 'pointer',
+                background: 'rgba(74,111,165,0.06)',
+                letterSpacing: '0.04em',
+                transition: 'background 150ms ease, border-color 150ms ease'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,111,165,0.12)'; e.currentTarget.style.borderColor = 'rgba(74,111,165,0.5)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,111,165,0.06)'; e.currentTarget.style.borderColor = 'rgba(74,111,165,0.3)' }}
+            >View Agent Trace →</button>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px', flex: 1, minHeight: 0 }}>
@@ -200,7 +226,6 @@ export default function IncidentDetail() {
                       <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, ...sans }}>{pm.rootCause}</div>
                     </div>
                   )}
-
                   {pm.confidence !== undefined && (
                     <div>
                       <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', ...mono, marginBottom: '6px' }}>Confidence</div>
@@ -212,7 +237,6 @@ export default function IncidentDetail() {
                       </div>
                     </div>
                   )}
-
                   {pm.actionsTaken?.length > 0 && (
                     <div>
                       <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', ...mono, marginBottom: '6px' }}>Actions Taken</div>
@@ -223,7 +247,6 @@ export default function IncidentDetail() {
                       ))}
                     </div>
                   )}
-
                   {pm.preventionSteps?.length > 0 && (
                     <div>
                       <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', ...mono, marginBottom: '6px' }}>Prevention</div>
@@ -234,7 +257,6 @@ export default function IncidentDetail() {
                       ))}
                     </div>
                   )}
-
                   {pm.timeToResolve && (
                     <div>
                       <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', ...mono, marginBottom: '6px' }}>Time to Resolve</div>

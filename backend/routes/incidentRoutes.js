@@ -17,6 +17,16 @@ router.delete('/all', async (req, res) => {
   }
 })
 
+router.delete('/:id', async (req, res) => {
+  try {
+    await Incident.findByIdAndDelete(req.params.id)
+    await AgentStep.deleteMany({ incidentId: req.params.id })
+    res.json({ success: true })
+  } catch {
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
 router.route('/summary').get(incidentController.getSummary)
 router.route('/').get(incidentController.getAllIncidents)
 router.route('/:id').get(incidentController.getIncidentById)
