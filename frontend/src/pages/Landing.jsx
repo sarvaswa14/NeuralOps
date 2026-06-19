@@ -111,20 +111,6 @@ export default function Landing() {
           </span>
 
           <div style={{ display: 'flex', gap: '36px', alignItems: 'center' }}>
-            <a href="#" style={{
-              color: 'rgba(255,255,255,0.6)',
-              textDecoration: 'none',
-              fontSize: '14px',
-              letterSpacing: '0.02em',
-              fontFamily: "'Geist', sans-serif"
-            }}>Docs</a>
-            <a href="#" style={{
-              color: 'rgba(255,255,255,0.6)',
-              textDecoration: 'none',
-              fontSize: '14px',
-              letterSpacing: '0.02em',
-              fontFamily: "'Geist', sans-serif"
-            }}>Architecture</a>
             <button
               onClick={() => navigate('/login')}
               style={{
