@@ -33,8 +33,11 @@ router.get('/metrics', (req, res) => {
   }
 
   if (failureState.HIGH_ERROR_RATE) base.errorRate = parseFloat((Math.random() * 30 + 40).toFixed(2))
-  if (failureState.MEMORY_LEAK) base.memory = parseFloat((base.memory + Math.random() * 200 + 300).toFixed(1))
+  if (failureState.MEMORY_LEAK) base.memory = parseFloat((Math.random() * 200 + 700).toFixed(1))
   if (failureState.SLOW_RESPONSE) base.avgResponseTime = parseFloat((Math.random() * 4000 + 8000).toFixed(1))
+  if (failureState.HIGH_CPU) base.cpu = parseFloat((Math.random() * 10 + 88).toFixed(1))
+  if (failureState.BAD_DEPLOY) base.errorRate = parseFloat((Math.random() * 20 + 25).toFixed(2))
+  if (failureState.DB_CORRUPTION) base.errorRate = parseFloat((Math.random() * 15 + 20).toFixed(2))
 
   res.status(200).json(base)
 })
