@@ -3,7 +3,7 @@ let io
 const initSocket = (server) => {
     io = new Server(server, {
         cors:{
-            origin: '*',
+            origin: ['https://neural-ops-gilt.vercel.app', 'http://localhost:5173'],
             methods: ['GET', 'POST']
         }
     })
