@@ -23,7 +23,7 @@ const app = express()
 const server = http.createServer(app)
 
 initSocket(server)
-
+app.set('trust proxy', 1)
 app.use(express.json())
 app.use(cors({
   origin: ['https://neural-ops-gilt.vercel.app', 'http://localhost:5173'],
