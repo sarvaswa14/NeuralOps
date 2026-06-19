@@ -35,7 +35,7 @@ exports.runAgentLoop = async (incidentContext, onStep) => {
     { role: 'system', content: systemInstruction },
     {
       role: 'user',
-      content: `Incident detected. service=${incidentContext.service}, anomalyType=${incidentContext.anomalyType}, anomalyScore=${incidentContext.anomalyScore}.\n\nPast learnings:\n${pastLearnings}\n\nBegin investigation. Call read_logs first.`
+      content: `Incident detected. service=${incidentContext.service}, anomalyType=${incidentContext.anomalyType}, anomalyScore=${incidentContext.anomalyScore}.\n\nPast learnings (use as context only, do not copy actions blindly):\n${pastLearnings}\n\nYou MUST call read_logs first. Then call get_metrics. Only after both tool results, decide what to do.`
     }
   ]
 
