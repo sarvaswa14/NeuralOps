@@ -10,7 +10,7 @@ def run():
     update_scores()
     
     active = db["incidents"].find_one({
-        "status": {"$in": ["investigating", "fixing", "verifying","escalated"]}
+        "status": {"$in": ["investigating", "fixing", "verifying"]}
     })
     
     if active:
