@@ -6,4 +6,4 @@ __pycache__
 venv
 dist
 .DS_Store
-backend/agent-core
+backend/agent-core/node_modules/
